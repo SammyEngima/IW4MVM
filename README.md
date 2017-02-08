@@ -11,21 +11,21 @@ NB : This modification was designed to be working on the IW4x client. I can't re
 
 #### Changelog : v201
 #### Actors
-• Actors now reacts to damage
-• Added a direction argument for the walk function
-• Actors can now have more than 1 weapon atttached
-• Actors' weapons can have camos
-• Removed 'dev_' at the start of actors commands
-• Added a '/actorback' command to set the actors back to their original state
+* Actors now reacts to damage
+* Added a direction argument for the walk function
+* Actors can now have more than 1 weapon atttached
+* Actors' weapons can have camos
+* Removed 'dev_' at the start of actors commands
+* Added a '/actorback' command to set the actors back to their original state
 
 ##### Dolly camera
-• Sightly edone the camera commands to something more simple and functionnal
+* Sightly edone the camera commands to something more simple and functionnal
     --> /mvm_cam_mode MODE
     --> /mvm_cam_start VALUE
-• Added a visual camera path
-• Changed camera models (IN PROGRESS, Might found something better)
-• Cleaned up the scripts
+* Added a visual camera path
+* Changed camera models (IN PROGRESS, Might found something better)
+* Cleaned up the scripts
 
 #### In progress (critical things I want to add or finish, fixes/changes does not count here)
-• Help menu
-• HLAE dolly camera script
+* Help menu
+* HLAE dolly camera script
