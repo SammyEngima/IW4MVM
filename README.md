@@ -9,7 +9,7 @@ NB : This modification was designed to be working on the IW4x client. I can't re
 
 **PLEASE NOTE THAT I WON'T PROVIDE ANY SUPPORT/HELP FILE ON THIS UNTIL ITS PUBLIC RELEASE.**
 
-#### Changelog : v201
+#### Changelog : v207
 #### Actors
 * Actors now reacts to damage
 * Added a direction argument for the walk function
