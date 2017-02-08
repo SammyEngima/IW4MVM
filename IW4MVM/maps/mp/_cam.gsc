@@ -60,7 +60,7 @@ CSpawn()
 		thread CameraStart();
 		//----------------------------------
 		// TEST
-		thread drawPath_cub();
+		//thread drawPath_cub();
 		//----------------------------------
 		// DEBUG
 		thread InitGrenadeCam();
