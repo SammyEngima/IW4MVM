@@ -2,9 +2,11 @@
 
 ### A work-in-progress moviemaking modification created for IW4M
 
-This is a huge project I've been working on for more than a year now. �
-The mod itself is quite complete but still needs some extra patchs that I'll work on over the time...�
-Please consider this as a beta-release of what you can call a "version 2" of the old mod�
+This is a huge project I've been working on for more than a year now.
+
+The mod itself is quite complete but still needs some extra patchs that I'll work on over the time...
+
+Please consider this as a beta-release of what you can call a "version 2" of the old mod
 
 ###### NB : This modification was designed to be working on the IW4x client. I can't recommend you enough to switch to that client if you didn't already.
 
