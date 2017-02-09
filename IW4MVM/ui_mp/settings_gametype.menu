@@ -167,7 +167,7 @@
 			text "^2LASKO ^7: For some menus and cool ideas"
 			visible 1
 		}
-		
+		/*
 		itemDef
 		{
 			rect 0 160 272 28 1 1
@@ -243,7 +243,7 @@
 			text "^3Nuage ^7: /user/iForcePad"
 			visible 1
 		}
-		
+		*/
 		/*
 		itemDef
 		{
