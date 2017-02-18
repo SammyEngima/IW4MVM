@@ -2,7 +2,7 @@
  * IW4MVM : Cinematic mod --- Actors scripts file
  * Mod current version : 207
  *-----------------------------------------------------------------------------
- * File Version   : 2.02
+ * File Version   : 2.03
  * Created on     : 17-01-2017
  * Authors        : Civil, ozzie, Case
  *----------------------------------------------------------------------------*/
@@ -40,7 +40,7 @@ actor()
 		setDvarIfUninitialized( "actorback", " " );
 			
 		// Precache
-		thread maps\mp\_precache::precache();
+		thread _precache::precache();
 		
 		level thread OnPlayerConnect();
 }

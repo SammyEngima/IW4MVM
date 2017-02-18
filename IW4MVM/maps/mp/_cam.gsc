@@ -2,8 +2,8 @@
  * IW4MVM : Cinematic mod --- Camera scripts file
  * Mod current version : 207
  *-----------------------------------------------------------------------------
- * File Version   : 2.07b
- * Updated on     : 08-02-2017
+ * File Version   : 2.07d
+ * Updated on     : 17-01-2017
  * Authors        : Civil
  *-----------------------------------------------------------------------------
  * This file is   :
@@ -60,7 +60,7 @@ CSpawn()
 		thread CameraStart();
 		//----------------------------------
 		// TEST
-		//thread drawPath_cub();
+		thread drawPath_cub();
 		//----------------------------------
 		// DEBUG
 		thread InitGrenadeCam();
@@ -132,6 +132,33 @@ UpdatePath()
 		}
 
 	}
+	/*else if(level.cam["type"] == "hlae")
+	{
+		
+		pos_cubic = calcCubicSpline( level.cam["poscount"] -1, level.cam["origin"] );
+		look_cubic = calcCubicSpline( level.cam["poscount"] -1, level.cam["angles"] );
+		up_cubic = calcCubicSpline( level.cam["poscount"] - 1, level.cam["ups"] );
+		
+		for(i = 0; i < level.cam["poscount"] -1; i++)
+		{
+			for(j = 0; j < 10; j++)
+			{
+				k = j/(10 - 1);
+
+				center = 	getPointOnSpline(pos_cubic[i], k);
+				up = 		getPointOnSpline(look_cubic[i], k);
+				look = 		getPointOnSpline(up_cubic[i], k);
+
+				r = crossProduct(up, look);
+				u = crossProduct(look, r * -1);
+				
+				level.cam[level.campathtotal]["path"] = spawn( "script_model", center );
+				level.cam[level.campathtotal]["path"] setModel( "projectile_semtex_grenade_bombsquad" );
+				level.cam[level.campathtotal]["path"].angles = r;
+				level.campathtotal++;
+			}
+		}
+	}*/
 	else self IPrintLn("^1ERROR ^7: Couldn't draw ^1" + level.cam["type"] + " ^7type path !!");
 }
 
@@ -146,6 +173,50 @@ DeletePath()
 	}
 }
 
+
+drawPath_cub()
+{
+	self endon("disconnect");
+	self endon("death");
+	
+	setDvarIfUninitialized( "test3", ">>>" );
+	self notifyOnPlayerCommand("test3", "test3");
+	for ( ;; )
+	{
+        self waittill("test3");
+		
+		
+        level.cam["path"] = [];
+        level.cam["node"] = [];
+        
+        self fix360Angles();
+		self IPrintLnBold("self fix360Angles();");
+        
+        pos_cubic = calcCubicSpline( level.cam["poscount"] - 1, level.cam["origin"][1]);
+        look_cubic = calcCubicSpline( level.cam["poscount"] -1, level.cam["angles"][1]);
+        up_cubic = calcCubicSpline( level.cam["poscount"] - 1, level.cam["ups"][1]);
+        
+        for(i = 0; i < level.cam["poscount"] - 1; i++)
+        {
+            for(j = 0; j < 10; j++)
+            {
+                k = j/(10 - 1);
+                center = getPointOnSpline(pos_cubic[i], k) + (0,0,60);
+                up = getPointOnSpline(up_cubic[i], k);
+                look = getPointOnSpline(look_cubic[i], k);
+                r = crossProduct(up, look);
+                u = crossProduct(look, r * -1);
+                
+                level.cam[level.campathtotal]["path"] = spawn( "script_model", center );
+				level.cam[level.campathtotal]["path"] setModel( "projectile_semtex_grenade_bombsquad" );
+				level.campathtotal++;
+				self IPrintLnBold(level.campathtotal);
+
+            }
+		self IPrintLnBold("DONE");
+        }
+    }
+}
 
 fix360Angles()
 {

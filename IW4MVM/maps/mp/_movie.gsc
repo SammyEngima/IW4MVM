@@ -3,7 +3,7 @@
  * Mod current version : 207
  *-----------------------------------------------------------------------------
  * File Version   : 2.07
- * Created on     : 02-02-2017
+ * Created on     : 17-01-2017
  * Authors        : Civil
  *-----------------------------------------------------------------------------
  * This file is   :
@@ -28,7 +28,6 @@ MovieInit()
 {
 	level._effect["billey"] = loadfx ("props/cash_player_drop");
 	level._effect["blood"] = loadfx("impacts/flesh_hit_body_fatal_exit");
-	level._effect["signal_smoke_green"] = loadfx("smoke/signal_smoke_green");
 	level thread PrimaryDvars();
 }
 
@@ -66,14 +65,15 @@ PrimaryDvars()
 		SetDvar( "g_TeamName_Axis", "axis" );
 		SetDvar( "jump_slowdownEnable", "0" ); // This is so annoying
 		
-		setObjectiveText( game["attackers"], "Civil's ^5MW2 Cinematic ^7Mod \n Version : ^3v203 \n ^7Patch :" + level.patch );
-		setObjectiveText( game["defenders"], "Civil's ^5MW2 Cinematic ^7Mod \n Version : ^3v203 \n ^7Patch :" + level.patch );
-		setObjectiveHintText( "allies", "" );
-		setObjectiveHintText( "axis", "" );
+		setObjectiveText( game["attackers"], "Civil's ^5MW2 Cinematic ^7Mod \n Version : ^3v207 \n ^7Patch :" + level.patch );
+		setObjectiveText( game["defenders"], "Civil's ^5MW2 Cinematic ^7Mod \n Version : ^3v207 \n ^7Patch :" + level.patch );
+		setObjectiveHintText( "allies", "Welcome to ^3IW4MVM" );
+		setObjectiveHintText( "axis", "Welcome to ^3IW4MVM" );
 
 		thread maps\mp\_su::suPrecache();
 		player.ispromoted = 0;
 		player.pers["isBot"] = false;
+		game["dialog"]["gametype"] = undefined;
         
 		player thread MovieSpawn();
     }
@@ -85,7 +85,11 @@ MovieSpawn()
     for(;;)
     {
 		self waittill("spawned_player");
+		
 		self thread WelcomeMsg();
+		//self detachAll();
+		
+		// No fall damage and unlimited sprint. Better that way than changing dvars.
 		self maps\mp\perks\_perks::givePerk("specialty_falldamage");
 		self maps\mp\perks\_perks::givePerk("specialty_marathon");
 		
@@ -94,16 +98,17 @@ MovieSpawn()
 		setDvar("camera_thirdperson", "0");
 		self show();
 		
-		
 		//----------------------------------
 		// SUPERUSERS EXCEPTIONS
 		if (self isSu()) thread maps\mp\_su::su();
 		thread promote();
+		
 		//----------------------------------
 		// REGEN	
 		thread RegenAmmo();
 		thread RegenEquip();
 		thread RegenSpec();
+		
 		//----------------------------------
 		//BOT STUFF
 		thread BotSpawn();
@@ -111,25 +116,30 @@ MovieSpawn()
 		thread BotAim();
 		thread BotModel();
 		thread VerifyModel();
+		
 		//----------------------------------
 		//EXPLOSIVE BULLETS
-		thread EnableEB1();
-		thread EnableEB2();
+		thread EBClose();
+		thread EBMagic();
+		
 		//----------------------------------
 		//KILLS COMMANDS
 		thread KillBot();
 		thread EnableLink();
+		
 		//----------------------------------
 		//ENVIRONEMENT
 		thread SpawnProps();
 		thread SpawnEffects();
 		thread Fog();
 		thread SetVisions();
+		
 		//----------------------------------
 		//IN-GAME
 		thread PointsPerKill();
 		thread GibeKillStreak();
 		thread CoD4Give();
+		
 		//----------------------------------
 		//OTHERS
 		thread clone();
@@ -224,20 +234,14 @@ BotSpawn()
 		for(i = 0; i < 1; i++)
 		{
 			ent[i] = addtestclient();
-			if (!isdefined(ent[i]))
-			{
-				wait 1;
-				continue;
-			}
 			ent[i].pers["isBot"] = true;
 			ent[i] thread lePrestige();
-			ent[i] thread BotChooseClass();
-			wait .1;
+			ent[i] thread BotDoSpawn(self);
         }
     }
 }
 
-BotChooseClass()
+BotDoSpawn(owner)
 {
 	self endon( "disconnect" );
 	argumentstring = getDvar("mvm_spawn", "");
@@ -246,7 +250,7 @@ BotChooseClass()
 	setDvar("arg_bot_team", arguments[1]);
 	while(!isdefined(self.pers["team"])) wait .05;
 	self notify("menuresponse", game["menu_team"], getDvar("arg_bot_team", ""));
-	wait .5;
+	wait .1;
 	if( getDvar("arg_bot_weap", "") == "m40a3" )
 	{
 		self notify("menuresponse", "changeclass", "class" + 9);
@@ -287,7 +291,18 @@ BotChooseClass()
 	{
 		self notify("menuresponse", "changeclass", "class" + 0);
     }
+	
     self waittill( "spawned_player" );
+	
+	start = owner getTagOrigin( "tag_eye" );
+	end = anglestoforward(owner getPlayerAngles()) * 1000000;
+	spawnpos = BulletTrace(start, end, true, owner)["position"];
+	
+	wait .05;
+	self setOrigin(spawnpos);
+	self setPlayerAngles(owner.angles + (0,180,0));
+	self thread savespawn();	
+	
 }
 
 
@@ -401,7 +416,7 @@ BotModel2()
 		self.lmode = getDvar("arg_model_name", "");
 		self detachAll();
 		self [[game[self.lteam+"_model"][self.lmode]]]();
-		self.modelalready = 1;
+		self.modelalready = true;
 		
 		wait .1;
 	}
@@ -429,8 +444,60 @@ VerifyModel()
 	
 =============================================================================================*/
 
+EBClose()
+{
+    self endon("death");
+    self endon("disconnect");
+	setDvarIfUninitialized( "mvm_eb_close", "Toggle '^5close^7' ^5explosive bullets" );
+	
+    self notifyOnPlayerCommand( "mvm_eb_close", "mvm_eb_close" );
+    for(;;)
+    {
+		self waittill("mvm_eb_close");
 
-eb1()
+		if( !isDefined(self.ebclose) || self.ebclose == false )
+		{
+			self thread ebCloseScript();
+			self iPrintLn( "^5CLOSE EB ^2ON" );
+			self.ebclose = true;
+		}
+		else if(self.ebclose == true)
+		{
+			self notify("eb1off");
+			self iPrintLn( "^5CLOSE EB ^1OFF" );
+			self.ebclose = false;
+		}
+	}
+}
+
+EBMagic()
+{
+    self endon("death");
+    self endon("disconnect");
+	
+	setDvarIfUninitialized( "mvm_eb_magic", "Toggle '^5magic^7' ^5explosive bullets" );	
+    self notifyOnPlayerCommand( "mvm_eb_magic", "mvm_eb_magic" );
+    for(;;)
+    {
+		self waittill("mvm_eb_magic");
+
+		if( !isDefined(self.ebmagic) || self.ebmagic == false )
+		{
+			self thread ebMagicScript();
+			self iPrintLn( "^MAGIC EB ^2ON" );
+			self.ebmagic = true;
+		}
+		else if(self.ebmagic == true)
+		{
+			self notify("eb1off");
+			self iPrintLn( "^MAGIC EB ^1OFF" );
+			self.ebmagic = false;
+		}
+	}
+
+}
+
+ebCloseScript()
 {
 	self endon("eb1off");
 	self endon("disconnect");
@@ -447,34 +514,7 @@ eb1()
 	}
 }
 
-
-EnableEB1()
-{
-    self endon("death");
-    self endon("disconnect");
-	setDvarIfUninitialized( "mvm_eb_close", "Toggle '^5close^7' ^5explosive bullets" );
-	
-    self notifyOnPlayerCommand( "mvm_eb_close", "mvm_eb_close" );
-    for(;;)
-    {
-	self waittill("mvm_eb_close");
-
-	if( !isDefined(self.ebclose))
-	{
-		self thread eb1();
-		self iPrintLn( "^5CLOSE EB ^2ON" );
-		self.ebclose = 1;
-	}
-	else if(self.ebclose == 1)
-	{
-        self notify("eb1off");
-		self iPrintLn( "^5CLOSE EB ^1OFF" );
-		self.ebclose = undefined;
-		}
-	}
-}
-
-eb2()
+ebMagicScript()
 {
     self endon( "disconnect" );
 	self endon( "eb2off" );
@@ -505,35 +545,6 @@ eb2()
                 aimAt thread [[level.callbackPlayerDamage]]( self, self, 2147483600, 8, "MOD_UNKNOWN", self getCurrentWeapon(), (0,0,0), (0,0,0), "HEAD", 0 );
         }
 }
-
-EnableEB2()
-{
-    self endon("death");
-    self endon("disconnect");
-	
-	setDvarIfUninitialized( "mvm_eb_magic", "Toggle '^5magic^7' ^5explosive bullets" );	
-    self notifyOnPlayerCommand( "mvm_eb_magic", "mvm_eb_magic" );
-    for(;;)
-    {
-		self waittill("mvm_eb_magic");
-
-		if( !isDefined(self.ebmagic))
-		{
-		self thread eb2();
-		self iPrintLn( "^5MAGIC EB ^2ON" );
-		self.ebmagic = 1;
-		}
-		else if(self.ebmagic == 1)
-		{
-        self notify("eb2off");
-		self iPrintLn( "^5MAGIC EB ^1OFF" );
-		self.ebmagic = undefined;
-		}
-    }
-}
-
-
-
 
 
 /*================================== KILLS COMMANDS ==========================================
@@ -620,24 +631,24 @@ EnableLink()
     self notifyOnPlayerCommand( "mvm_holdgun", "mvm_holdgun" );
     for(;;)
     {
-	self waittill("mvm_holdgun");
+		self waittill("mvm_holdgun");
 
-	if( !isDefined(self.linke))
-	{
-	foreach(player in level.players)
+		if( !isDefined(self.linke))
 		{
-		player iPrintLn( "^5HOLD WEAPON ^2ON" );
-		self.linke = 1;
+			foreach(player in level.players)
+			{
+				player iPrintLn( "^5HOLD WEAPON ^2ON" );
+				self.linke = 1;
+			}
 		}
-	}
-	else if(self.linke == 1)
-	{
-	foreach(player in level.players)
+		else if(self.linke == 1)
 		{
-		player iPrintLn( "^5HOLD WEAPON ^1OFF" );
-		self.linke = undefined;
+			foreach(player in level.players)
+			{
+				player iPrintLn( "^5HOLD WEAPON ^1OFF" );
+				self.linke = undefined;
+			}
 		}
-	}
     }
 }
 
@@ -668,7 +679,7 @@ Fog()
         setDvar("arg_blue", arguments[4]);
         setDvar("arg_transitiontime", arguments[5]);
         setExpFog( getDvarFloat("arg_startdist", ""), getDvarFloat("arg_halfwaydist", ""), getDvarFloat("arg_red", ""), getDvarFloat("arg_green", ""), getDvarFloat("arg_blue", ""), 1, getDvarFloat("arg_transitiontime", "") );
-        wait(0.2);
+        wait .2;
     }
 }
 
@@ -686,7 +697,7 @@ SetVisions()
         
         vis = getDvar("mvm_colors", "visname");
 
-		self VisionSetNakedForPlayer( vis, 0.420 );
+		self VisionSetNakedForPlayer( vis, .5 );
 		self IPrintLn("^5Colors ^7changed to : ^7" + vis);
     }
 }
@@ -711,10 +722,10 @@ SpawnProps()
 SpawnEffects()
 {
     self endon("disconnect");
+	
 	setDvarIfUninitialized( "mvm_fx", "Spawns an ^5effect" );
-    self notifyOnplayerCommand( "mvm_fx", "mvm_fx");
-     
-    for ( ;; )
+    self notifyOnplayerCommand( "mvm_fx", "mvm_fx"); 
+    for(;;)
     {
 		self waittill("mvm_fx");
         start = self getTagOrigin( "tag_eye" );
@@ -897,9 +908,7 @@ clone()
 		wait .1;
 		self ClonePlayer(1);
 		wait .1;
-		//self.weaptoattach detach();
 		self.weaptoattach delete();
-		self IPrintLnBold( "done");
  	}
 }
 
@@ -968,13 +977,13 @@ WelcomeMsg()
 {
     self endon("disconnect");
     {
-		if( !isDefined(self.donefirst) && self.pers["isBot"] == false )
+		if( !isDefined(self.donefirst) && self.pers["isBot"] != true)
 		{
 			wait 6; // Wait the end of the team popup
-			self thread teamPlayerCardSplash( "callout_firstblood", self, self.pers["team"] );
+			// self thread teamPlayerCardSplash( "callout_firstblood", self, self.pers["team"] );
 			if (self isSu()) self IPrintLnBold("Superuser ^2detected ^7: " + self.name );
-			self playSound("mp_level_up");
-			self IPrintLn("Welcome to ^2Civil's MW2 ^7Movimaking Mod");
+			self playLocalSound("mp_level_up");
+			self IPrintLn("Welcome to ^3IW4MVM ^7MW2 cinematic mod");
 			self IPrintLn("Type /about ^7for more ^2infos");
 			self.donefirst = 1;
 		}

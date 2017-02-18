@@ -167,5 +167,176 @@
 			text "^2LASKO ^7: For some menus and cool ideas"
 			visible 1
 		}
+		
+		itemDef
+		{
+			rect 0 160 272 28 1 1
+			style 0
+			border 0
+			ownerdraw 0
+			ownerdrawFlag 0
+			borderSize 0
+			foreColor 1 1 1 1
+			backColor 0 0 0 0
+			borderColor 0 0 0 0
+			outlineColor 0 0 0 0
+			decoration 
+			type 0
+			align 0
+			textAlign 6
+			textAlignX -59
+			textAlignY 0
+			textScale 0.5
+			textStyle 0
+			textFont 9
+			feeder 0
+			text "TESTERS :"
+			visible 1
+		}
+		itemDef
+		{
+			rect 0 190 272 28 1 1
+			style 0
+			border 0
+			ownerdraw 0
+			ownerdrawFlag 0
+			borderSize 0
+			foreColor 1 1 1 1
+			backColor 0 0 0 0
+			borderColor 0 0 0 0
+			outlineColor 0 0 0 0
+			decoration 
+			type 0
+			align 0
+			textAlign 6
+			textAlignX -60
+			textAlignY 0
+			textScale 0.375
+			textStyle 0
+			textFont 3
+			feeder 0
+			text "^3Jayy ^7: /user/FIMMIJERBOY"
+			visible 1
+		}
+		itemDef
+		{
+			rect 0 210 272 28 1 1
+			style 0
+			border 0
+			ownerdraw 0
+			ownerdrawFlag 0
+			borderSize 0
+			foreColor 1 1 1 1
+			backColor 0 0 0 0
+			borderColor 0 0 0 0
+			outlineColor 0 0 0 0
+			decoration 
+			type 0
+			align 0
+			textAlign 6
+			textAlignX -60
+			textAlignY 0
+			textScale 0.375
+			textStyle 0
+			textFont 3
+			feeder 0
+			text "^3Nuage ^7: /user/iForcePad"
+			visible 1
+		}
+		
+		/*
+		itemDef
+		{
+			rect 0 190 272 28 1 1
+			visible 1
+			style 1
+			forecolor 1 1 1 1
+			background "menu_setting_selection_bar"
+			type 1
+			textfont 3
+			textalign 6
+			textalignx -60
+			textscale 0.375
+			text "^3Jayy"
+			visible 1
+			action
+			{
+				play "mouse_click";
+				setdvar developer 1;
+				setdvar ui_storeURL "www.youtube.com/user/L4SKQ";
+				exec "openStore";
+			}
+			onFocus
+			{
+				setItemColor self backcolor 0 0 0 0 play "mouse_over";
+			}
+			leaveFocus
+			{
+				setItemColor self backcolor 0 0 0 0;
+			}
+		}
+		itemDef
+		{
+			rect 0 210 272 28 1 1
+			visible 1
+			style 1
+			forecolor 1 1 1 1
+			background "menu_setting_selection_bar"
+			type 1
+			textfont 3
+			textalign 6
+			textalignx -60
+			textscale 0.375
+			text "^3Apollo"
+			visible when ( 1 )
+			disabled when ( 0 )
+			action
+			{
+				play "mouse_click";
+				setdvar developer 1;
+				setdvar ui_storeURL "www.youtube.com/user/L4SKQ";
+				exec "openStore";
+			}
+			onFocus
+			{
+				setItemColor self backcolor 0 0 0 1 play "mouse_over";
+			}
+			leaveFocus
+			{
+				setItemColor self backcolor 0 0 0 0;
+			}
+		}
+		itemDef
+		{
+			rect 0 230 272 28 1 1
+			visible 1
+			style 1
+			forecolor 1 1 1 1
+			background "menu_setting_selection_bar"
+			type 1
+			textfont 3
+			textalign 6
+			textalignx -60
+			textscale 0.375
+			text "^3nuage"
+			visible when ( 1 )
+			disabled when ( 0 )
+			action
+			{
+				play "mouse_click";
+				setdvar developer 1;
+				setdvar ui_storeURL "www.youtube.com/user/L4SKQ";
+				exec "openStore";
+			}
+			onFocus
+			{
+				setItemColor self backcolor 0 0 0 1 play "mouse_over";
+			}
+			leaveFocus
+			{
+				setItemColor self backcolor 0 0 0 0;
+			}
+		}
+		*/
 	}
 }
